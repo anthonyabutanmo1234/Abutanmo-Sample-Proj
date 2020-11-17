@@ -1,0 +1,149 @@
+<html>
+<head>
+    <title>Vue Image Upload</title>
+
+    <style>
+        div.gallery {
+          margin: 5px;
+          border: 1px solid #ccc;
+          float: left;
+          width: 180px;
+        }
+        
+        div.gallery:hover {
+          border: 1px solid #777;
+        }
+        
+        div.gallery img {
+          width: 100%;
+          height: auto;
+        }
+        
+        div.desc {
+          padding: 15px;
+          text-align: center;
+        }
+    </style>
+
+</head>
+<body>
+    <div id="productApp">
+
+        <div v-show="view === 'boxed-item'">
+            <h1>{{appName}}</h1>
+            <div class="gallery" v-for="(p,index) in products">
+                <a href="#" @click="getProductDetail(index)">
+                  <img :src="p.Photo" v-show="p.Photo" alt="p.Name">
+                  <div class="desc">
+                      {{p.Name}} {{p.Price | currency}}
+                      <br>
+                      {{p.Category.Name}}
+                    </div>
+                </a>
+            </div>         
+        </div>
+    
+        <div v-if="view === 'detailview'">
+            <h2>Upload Photo</h2>
+            <button @click="display('boxed-item')">Back</button>
+            <dl>
+                <dt>Id</dt>
+                <dd>{{detailItem.Id}}</dd>
+                <dt>Name</dt>
+                <dd>{{detailItem.Name}}</dd>
+                <dt>Category</dt>
+                <dd>{{detailItem.Category.Name}}</dd>
+                <dt>Price</dt>
+                <dd>{{detailItem.Price}}</dd>
+                <dt>Photo</dt>
+                <dd>
+                    <p  v-if="!pleaseWait">
+                        <input type="file" accept="image/*" @change="onFileChanged" >
+                        <!-- Disable the Upload button if selectFile is empty -->
+                        <button @click="onUpload" :disabled="!selectedFile">Upload</button>           
+                    </p>
+                    <p v-else="pleaseWait">Uploading file...</p> 
+                                
+                    <!-- True if Photo is not empty -->
+                    <p v-if="detailItem.Photo"> 
+                        <img :src="detailItem.Photo" width="600" />
+                    </p>
+                    <p v-else>
+                        (No available photo)
+                    </p>
+                </dd>
+            </dl>
+        </div> 
+
+    </div>
+    
+        <!-- Vue JS and Axios -->
+        <script src="js/vue.min.js"></script>
+        <script src="js/axios.min.js"></script>
+        <script>
+            var vueApp = new Vue({
+                el: '#productApp',
+                data: {
+                    appName: "Product Image Upload Demo [Save To Database]",
+                    baseUrl: "http://bernardgabon.somee.com",
+                    view: "boxed-item",
+                    products: [],
+                    detailItem: {},
+                    selectedFile: null,
+                    pleaseWait: false
+                },
+                methods: {
+                    display: function (v) {
+                        this.view = v;
+                        this.selectedFile = null; // clear selectedFile when switching view
+                    },
+                    getProducts: function () {
+                        // GET http://bernardgabon.somee.com/api/product
+                        axios.get(this.baseUrl + "/api/product")
+                            .then(response => {
+                                this.products = response.data;
+                            });
+                    },
+                    getProductDetail: function (index) {
+                        // GET http://bernardgabon.somee.com/api/product/{Id}
+                        axios.get(this.baseUrl + "/api/product/" + this.products[index].Id)
+                            .then(response => {
+                                this.detailItem = response.data;
+                                this.view = "detailview";
+                            });
+                    },
+                    onFileChanged: function (event) {
+                        this.selectedFile = event.target.files[0];
+                    },
+                    onUpload: function () {
+                        this.pleaseWait = true;
+                        var formData = new FormData();
+                        formData.append('imgfile', this.selectedFile, this.selectedFile.name); // append(key, file, filename) 
+                        axios.post(this.baseUrl + "/api/product/" + this.detailItem.Id + "/uploadphoto", formData)
+                            .then(response => {
+                                this.detailItem = response.data;
+                                this.getProducts();
+                                this.selectedFile = null;
+                                this.pleaseWait = false;
+                            })
+                            .catch(error => {
+                                alert('Photo upload failed.')
+                                this.selectedFile = null;
+                                this.pleaseWait = false;
+                            });
+                    }
+                },
+                mounted: function () {
+                    this.getProducts();
+                },
+                filters: {
+                    currency: function (value) {
+                        return '₱' + parseFloat(value).toFixed(2);
+                    }
+                }
+            });
+    
+        </script>
+    
+</body>
+</html>
