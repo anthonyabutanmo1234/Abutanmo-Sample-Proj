@@ -14,7 +14,7 @@ namespace SharpDevelopWebApi.Controllers
 		SDWebApiDbContext _db = new SDWebApiDbContext();
 		
 		[HttpGet]
-		 public IHttpActionResult GetAll(string keyword = "")
+		 public IHttpActionResult GetAll(string keyword = "", string artist = "")
         {
             keyword = keyword.Trim();
             var song = new List<Song>();
@@ -23,19 +23,30 @@ namespace SharpDevelopWebApi.Controllers
             {
             	song = _db.Songs
                     .Where(x => x.Title.Contains(keyword) || x.Artist.Contains(keyword))
-                    .ToList();
+            		.OrderBy(o => o.Title).ToList();
             	
                 
             }
-            else
-            	song = _db.Songs.ToList(); 
+            else{
+            song = _db.Songs.ToList();
+            }
             
+            if(!string.IsNullOrWhiteSpace(artist)){
+            	song = song.Where(x => x.Artist.ToLower() == artist.ToLower()).ToList();
+            }
              int totalCount= song.Count();
 		 
-		 return Ok(new {totalCount, song});
-        }
+			 return Ok(new {totalCount, song});
+            
+            
 		 
+        }
 		
+		 
+          
+				
+	
+		 
 		 
 		public IHttpActionResult Create([FromBody]Song song)
 		{
