@@ -14,7 +14,7 @@ namespace SharpDevelopWebApi.Controllers
 		SDWebApiDbContext _db = new SDWebApiDbContext();
 		
 		[HttpGet]
-		 public IHttpActionResult GetAll(string keyword = "", string artist = "")
+		 public IHttpActionResult GetAll(string keyword = "", string artist = "", int? year = null, int? peak = null)
         {
             keyword = keyword.Trim();
             var song = new List<Song>();
@@ -31,8 +31,17 @@ namespace SharpDevelopWebApi.Controllers
             song = _db.Songs.ToList();
             }
             
-            if(!string.IsNullOrWhiteSpace(artist)){
-            	song = song.Where(x => x.Artist.ToLower() == artist.ToLower()).ToList();
+            if(!string.IsNullOrWhiteSpace(artist))
+            {
+            	song = song.Where(x => x.Artist.ToLower() == artist).ToList();
+            }
+            if(year != null)
+            {
+            	song = song.Where(x => x.Year == year.Value).ToList();
+            }
+            if(peak != null)
+            {
+            	song = song.Where(x => x.Peak <= peak).ToList();
             }
              int totalCount= song.Count();
 		 
@@ -68,6 +77,7 @@ namespace SharpDevelopWebApi.Controllers
 			song.Title = updatedSong.Title;
 			song.Artist = updatedSong.Artist;
 			song.Genre=updatedSong.Genre;
+			song.Year = updatedSong.Year;
 			_db.Entry(song).State = System.Data.Entity.EntityState.Modified;
 			_db.SaveChanges();
 			return Ok(song);
