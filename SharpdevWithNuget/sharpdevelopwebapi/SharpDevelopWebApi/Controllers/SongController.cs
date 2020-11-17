@@ -33,7 +33,7 @@ namespace SharpDevelopWebApi.Controllers
             
             if(!string.IsNullOrWhiteSpace(artist))
             {
-            	song = song.Where(x => x.Artist.ToLower() == artist).ToList();
+            	song = song.Where(x => x.Artist.ToLower() == artist.ToLower()).ToList();
             }
             if(year != null)
             {
