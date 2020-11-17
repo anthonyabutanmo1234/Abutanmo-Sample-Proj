@@ -21,14 +21,22 @@ namespace SharpDevelopWebApi.Controllers
             
             if(!string.IsNullOrEmpty(keyword))
             {
-                song = _db.Songs
+            	song = _db.Songs
                     .Where(x => x.Title.Contains(keyword) || x.Artist.Contains(keyword))
                     .ToList();
+            	
+                
             }
             else
-            	song = _db.Songs.ToList();
-                return Ok(song);
+            	song = _db.Songs.ToList(); 
+            
+             int totalCount= song.Count();
+		 
+		 return Ok(new {totalCount, song});
         }
+		 
+		
+		 
 		public IHttpActionResult Create([FromBody]Song song)
 		{
 			_db.Songs.Add(song);
