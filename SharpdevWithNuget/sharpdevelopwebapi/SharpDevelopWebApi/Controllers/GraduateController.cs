@@ -7,7 +7,7 @@ using SharpDevelopWebApi.Models;
 namespace SharpDevelopWebApi.Controllers
 {
 	/// <summary>
-	/// Description of SongController.
+	/// Description of GraduateController.
 	/// </summary>
 	public class GraduateController :ApiController
 	{
