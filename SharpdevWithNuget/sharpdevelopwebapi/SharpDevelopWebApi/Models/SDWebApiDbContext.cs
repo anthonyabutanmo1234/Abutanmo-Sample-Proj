@@ -24,6 +24,7 @@ namespace SharpDevelopWebApi.Models
         public DbSet <Course> Courses { get; set;}
         public DbSet <Faculty> Faculties { get; set;}
         public DbSet <Subject> Subjects { get; set;}
+        public DbSet <Graduate> Graduates {get; set;}
     }
 
 
